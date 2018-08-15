@@ -9,7 +9,12 @@ RUN apk add --no-cache openssl \
  && ln -s /usr/local/riemann-$RIEMANN_VERSION /usr/local/riemann
 
 WORKDIR /usr/local/riemann
-RUN sed -ie 's/env bash/env sh/' bin/riemann
+RUN sed -ie 's|env bash|env sh|' bin/riemann \
+  && sed -ie 's|riemann.log|/dev/stdout|' etc/riemann.config
+
+ARG RABBITMQ_PLUGIN_URL=https://github.com/avishai-ish-shalom/riemann-rabbitmq-plugin/releases/download/0.1.0/riemann-rabbitmq-plugin-0.1.0-SNAPSHOT-standalone.jar
+ADD ${RABBITMQ_PLUGIN_URL} lib/
+ENV EXTRA_CLASSPATH=/usr/local/riemann/lib/riemann-rabbitmq-input.jar
 
 EXPOSE 5555/tcp 5555/udp 5556
 
